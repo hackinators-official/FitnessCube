@@ -1,0 +1,86 @@
+<html>
+<head>
+    <title>Fitness Cube</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrapper">
+    <h1>Upload Data</h1>
+    <div id="status">Connecting...</div>
+    <div>
+        <!-- <input id="message"/><button onclick="create()">Create</button>
+        <div id="output"></div>
+        </div>
+        <div>
+        <input id="hash"/><button onclick="submit()">Submit</button><br>
+        <div id="outputName"></div>
+        </div> -->
+        <input type="file" id="myimage"/><button onclick="addimage()">Add Record</button><br>
+        <div id="imagehash"></div>
+        <div>
+    <h3>Load Image</h3>
+    <input type="text" id="loadimage"/><button onclick="loadimage()">Load Record</button>
+    <img src="" id="imageid"/>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/ipfs@0.31.7/dist/index.min.js"></script>
+<script>
+    const node = new Ipfs({})
+
+    node.on('ready', () => {
+        console.log('ready')
+        document.querySelector('#status').innerHTML = 'Ready'
+    })
+
+    function create() {
+        let value = document.querySelector('#message').value
+        node.files.add({
+            content: node.types.Buffer(value)
+        }, (err, res) => {
+            console.log({err, res})
+            document.querySelector("#output").innerHTML=res[0].hash
+        })
+    }
+
+    function submit() {
+        let value = document.querySelector('#hash').value
+        node.files.get(
+            value
+        , (err, res) => {
+            console.log({err, res})
+            console.log(res[0].content)
+        })
+    }
+    function addimage() {
+        let file = document.querySelector("#myimage").files[0]
+        console.log(file)
+        let reader = new FileReader()
+        reader.onloadend = function() {
+            console.log(reader.result)
+            node.files.add({
+                content: node.types.Buffer.from(reader.result)
+            }, (err, res) => {
+                console.log({err, res})
+                document.querySelector("#imagehash").innerHTML=res[0].hash
+            })
+        }
+        reader.readAsArrayBuffer(file)    
+    }
+    function loadimage() {
+        let value = document.querySelector('#loadimage').value
+        node.files.get(value,(err, res) => {
+            console.log(res[0].content)
+            let blob = new Blob([res[0].content], {type : 'image/jpg'})
+            let imageUrl = URL.createObjectURL(blob)
+            document.querySelector('#imageid').src=imageUrl
+        }
+        )
+        
+    }
+
+    
+</script>
+
+</body>
+</html>
